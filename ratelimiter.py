@@ -1,6 +1,7 @@
 import unittest
 import mock
 from datetime import datetime, timedelta
+from functools import wraps
 
 
 class RateLimitException(Exception):
@@ -51,10 +52,12 @@ def limiter(rate, per):
     :param per: The time window for the rate (eg. minute, hour, etc.)
     :type period: `datetime.timedelta`
     """
-    queue = []
-
+    
     def wrap(f):
-
+        # create an empty queue
+        queue = []
+        
+        @wraps(f)
         def wrapped(*args, **kwargs):
             # if the limit has been reached, raise
             if _limit_reached(queue, _current_time(), rate, per):
